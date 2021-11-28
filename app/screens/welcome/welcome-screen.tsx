@@ -1,19 +1,37 @@
-import React, { FC } from "react"
-import { View, ViewStyle, TextStyle, ImageStyle, SafeAreaView } from "react-native"
+import React, { FC, useState, useEffect, Fragment  } from "react"
+import { View, ViewStyle, TextStyle, SafeAreaView } from "react-native"
 import { StackScreenProps } from "@react-navigation/stack"
 import { observer } from "mobx-react-lite"
+
 import {
   Button,
   Header,
   Screen,
   Text,
-  GradientBackground,
-  AutoImage as Image,
+  GradientBackground
 } from "../../components"
 import { color, spacing, typography } from "../../theme"
 import { NavigatorParamList } from "../../navigators"
 
-const bowserLogo = require("./bowser.png")
+function useQuote() {
+	const [quote, setQuote] = useState(null)
+
+	useEffect(() => {
+		updateQuote()
+	}, [])
+
+	function updateQuote() {
+		fetch("http://localhost:3000/quotes")
+			.then((response) => response.json())
+			.then((quotes) => {
+				const randomIndex = Math.floor(Math.random() * quotes.length)
+				setQuote(quotes[randomIndex])
+			})
+	}
+
+	return { quote, updateQuote }
+}
+
 
 const FULL: ViewStyle = { flex: 1 }
 const CONTAINER: ViewStyle = {
@@ -38,37 +56,34 @@ const HEADER_TITLE: TextStyle = {
   textAlign: "center",
   letterSpacing: 1.5,
 }
-const TITLE_WRAPPER: TextStyle = {
-  ...TEXT,
+const TITLE_WRAPPER = {
+  marginTop: '30%',
   textAlign: "center",
 }
-const TITLE: TextStyle = {
-  ...TEXT,
-  ...BOLD,
-  fontSize: 28,
-  lineHeight: 38,
-  textAlign: "center",
-}
+
 const ALMOST: TextStyle = {
   ...TEXT,
   ...BOLD,
+  marginTop: 100,
   fontSize: 26,
   fontStyle: "italic",
 }
-const BOWSER: ImageStyle = {
-  alignSelf: "center",
-  marginVertical: spacing[5],
-  maxWidth: "100%",
-  width: 343,
-  height: 230,
+
+const AUTHOR: TextStyle = {
+  marginTop: 40,
+  fontStyle: "italic",
+  fontSize: 14,
+  fontWeight: '100',
+  textAlign: 'right',
 }
+
 const CONTENT: TextStyle = {
   ...TEXT,
-  color: "#BAB6C8",
-  fontSize: 15,
-  lineHeight: 22,
-  marginBottom: spacing[5],
+  fontSize:14,
+  paddingBottom: 20,
+  color: color.palette.deepPurple,
 }
+
 const CONTINUE: ViewStyle = {
   paddingVertical: spacing[4],
   paddingHorizontal: spacing[4],
@@ -87,38 +102,31 @@ const FOOTER_CONTENT: ViewStyle = {
 }
 
 export const WelcomeScreen: FC<StackScreenProps<NavigatorParamList, "welcome">> = observer(
-  ({ navigation }) => {
-    const nextScreen = () => navigation.navigate("demo")
-
+  ({}) => {
+    const { quote, updateQuote } = useQuote()
     return (
       <View testID="WelcomeScreen" style={FULL}>
         <GradientBackground colors={["#422443", "#281b34"]} />
         <Screen style={CONTAINER} preset="scroll" backgroundColor={color.transparent}>
-          <Header headerTx="welcomeScreen.poweredBy" style={HEADER} titleStyle={HEADER_TITLE} />
-          <Text style={TITLE_WRAPPER}>
-            <Text style={TITLE} text="Your new app, " />
-            <Text style={ALMOST} text="almost" />
-            <Text style={TITLE} text="!" />
-          </Text>
-          <Text style={TITLE} preset="header" tx="welcomeScreen.readyForLaunch" />
-          <Image source={bowserLogo} style={BOWSER} />
-          <Text style={CONTENT}>
-            This probably isn't what your app is going to look like. Unless your designer handed you
-            this screen and, in that case, congrats! You're ready to ship.
-          </Text>
-          <Text style={CONTENT}>
-            For everyone else, this is where you'll see a live preview of your fully functioning app
-            using Ignite.
-          </Text>
+          <Header headerTx="welcomeScreen.landingTitle" style={HEADER} titleStyle={HEADER_TITLE} />   
+          {quote && (
+            <Fragment>
+              <View style={TITLE_WRAPPER}>
+                <Text style={ALMOST}>{quote.text}</Text>
+              </View>
+              <Text style={AUTHOR}>─ {quote.author}</Text>
+            </Fragment>
+          )}
         </Screen>
         <SafeAreaView style={FOOTER}>
           <View style={FOOTER_CONTENT}>
+            <Text style={CONTENT}>In case the motivation was unsuccessfull, press the button to try again. :)</Text>
             <Button
               testID="next-screen-button"
               style={CONTINUE}
               textStyle={CONTINUE_TEXT}
-              tx="welcomeScreen.continue"
-              onPress={nextScreen}
+              tx="welcomeScreen.getNewQuote"
+              onPress={updateQuote}
             />
           </View>
         </SafeAreaView>

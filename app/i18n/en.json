@@ -8,9 +8,9 @@
     "invalidEmail": "Invalid email address."
   },
   "welcomeScreen": {
-    "poweredBy": "POWERED BY IGNITE",
-    "readyForLaunch": "Ready for launch.",
-    "continue": "CONTINUE"
+    "landingTitle": "MOTIVATIONAL QUOTES",
+    "readyForLaunch": "Pokusavam ovo da skontam",
+    "getNewQuote": "NEW QUOTE"
   },
   "demoScreen": {
     "howTo": "HOW TO",
